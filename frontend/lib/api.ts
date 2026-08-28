@@ -144,3 +144,23 @@ export interface MatchItem {
   suggestion?: string;
   created_at: string;
 }
+
+// ---------- 知识库文档 ----------
+export const documentApi = {
+  upload: (file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return request("/documents/upload", { method: "POST", body: fd });
+  },
+  list: () => request<{ documents: any[] }>("/documents"),
+  remove: (id: string) => request(`/documents/${id}`, { method: "DELETE" }),
+};
+
+// ---------- RAG 问答 ----------
+export const ragApi = {
+  ask: (question: string) =>
+    request<{ answer: string; sources: any[]; retrieved: any[] }>("/rag/ask", {
+      method: "POST",
+      body: JSON.stringify({ question }),
+    }),
+};

@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { href: "/resumes", label: "简历" },
   { href: "/jobs", label: "岗位 JD" },
   { href: "/matches", label: "匹配" },
+  { href: "/knowledge", label: "知识库" },
 ];
 
 export default function NavBar() {
