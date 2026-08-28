@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { jobApi, matchApi, resumeApi, MatchItem, JobItem, ResumeItem } from "@/lib/api";
@@ -208,6 +209,22 @@ export default function MatchesPage() {
               </p>
             </section>
           )}
+
+          {/* 闭环衔接：去优化简历 */}
+          <div className="mt-6 flex flex-col items-start justify-between gap-4 rounded-xl border border-zinc-200 bg-white p-6 sm:flex-row sm:items-center">
+            <div>
+              <div className="font-semibold">下一步：根据差距优化简历</div>
+              <div className="mt-1 text-sm text-zinc-500">
+                按上面的建议补齐技能关键词、完善项目描述后，重新上传一份新版本简历再匹配
+              </div>
+            </div>
+            <Link
+              href="/resumes"
+              className="shrink-0 rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-zinc-700"
+            >
+              去优化简历 →
+            </Link>
+          </div>
         </div>
       )}
 
