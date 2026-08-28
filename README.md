@@ -18,22 +18,51 @@
 - RAG 求职知识库（pgvector 检索 + 来源引用）
 - 投递管理与求职数据分析
 
-## 技术栈（规划）
+## 技术栈（已落地）
 
-- Frontend：Next.js / React + Tailwind CSS
-- Backend：FastAPI + Pydantic
-- AI：LLM API + Structured Output + Prompt Versioning
-- Data：PostgreSQL + pgvector + Redis
-- Deploy：Docker Compose
+- Frontend：Next.js 16（App Router）+ Tailwind CSS（骨架已创建，`frontend/`）
+- Backend：FastAPI + Pydantic + SQLAlchemy（venv 就绪，`backend/`）
+- AI：LLM API + Structured Output + Prompt Versioning（第 8 步起接入）
+- Data：PostgreSQL 17（库已建 `ai_career_copilot`）+ pgvector（第 13 步）+ Redis（第 16 步）
+- Deploy：Docker Compose（骨架就绪，第 17 步部署）
+
+## 项目结构
+
+```
+├── frontend/        # Next.js 前端
+├── backend/         # FastAPI 后端（app/api core models schemas services）
+├── ai/              # prompts / parsers / evaluators
+├── rag/             # ingestion / retrieval / embeddings（第 13 步）
+├── evaluation/      # datasets / scripts / reports（第 15 步）
+├── db/schema.sql    # 数据库 DDL（已验证）
+├── docs/            # 用户研究 / 竞品 / PRD / 原型 / 数据库设计
+├── tests/
+├── docker-compose.yml
+└── .env.example
+```
+
+## 本地运行
+
+```bash
+# 1. 后端（需先建库：见 db/schema.sql，且已创建 ai_career_copilot）
+cd backend
+.venv\Scripts\activate        # Windows
+uvicorn app.main:app --reload # http://localhost:8000/docs
+
+# 2. 前端
+cd frontend
+npm install
+npm run dev                   # http://localhost:3000
+```
 
 ## 进度
 
-- [ ] 第 1 步 环境搭建与项目初始化（进行中）
-- [ ] 第 2 步 用户研究与痛点验证
-- [ ] 第 3 步 撰写 PRD
-- [ ] 第 4 步 页面原型与用户流程
-- [ ] 第 5 步 数据库设计与 ER 图
-- [ ] 第 6 步 项目骨架搭建
+- [x] 第 1 步 环境搭建 + GitHub 仓库
+- [x] 第 2 步 用户研究与痛点验证
+- [x] 第 3 步 撰写 PRD
+- [x] 第 4 步 页面原型与用户流程
+- [x] 第 5 步 数据库设计与 ER 图（已建库验证）
+- [x] 第 6 步 项目骨架搭建（前后端骨架已跑通）
 - [ ] 第 7 步 FastAPI 后端 + 用户登录
 - [ ] 第 8 步 简历上传与解析
 - [ ] 第 9 步 JD 上传与解析
