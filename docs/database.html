@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>AI Career Copilot · ER 图</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Microsoft YaHei", sans-serif; background: #f5f6f8; padding: 24px; color: #333; }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  .sub { color: #888; font-size: 13px; margin-bottom: 20px; }
+  .legend { display: flex; gap: 16px; margin-bottom: 16px; font-size: 13px; color: #555; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .entity { border: 1px solid #ddd; border-radius: 8px; background: #fff; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .entity .head { padding: 9px 12px; color: #fff; font-weight: bold; font-size: 14px; display: flex; justify-content: space-between; }
+  .entity.blue .head { background: #3b6fd4; }
+  .entity.green .head { background: #3a9d6b; }
+  .entity.purple .head { background: #7b4fd0; }
+  .entity .head small { font-weight: normal; font-size: 11px; opacity: .85; }
+  .entity table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .entity td { padding: 5px 10px; border-bottom: 1px solid #f0f0f0; }
+  .entity tr:last-child td { border-bottom: none; }
+  .fname { font-family: Consolas, monospace; color: #222; }
+  .ftype { color: #888; font-family: Consolas, monospace; text-align: right; }
+  .key { color: #b8860b; font-weight: bold; }
+  .fk { color: #3b6fd4; font-weight: bold; }
+  .rel-title { margin-top: 28px; font-size: 16px; margin-bottom: 12px; }
+  table.rel { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; font-size: 13px; }
+  table.rel th, table.rel td { padding: 8px 12px; border-bottom: 1px solid #eee; text-align: left; }
+  table.rel th { background: #f7f8fa; color: #666; }
+  table.rel tr:last-child td { border-bottom: none; }
+  .foot { margin-top: 20px; color: #aaa; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>AI Career Copilot · 数据库 ER 图</h1>
+<div class="sub">10 张表 · 11 个关系 · PostgreSQL 17 + pgvector ｜ v0.1</div>
+<div class="legend">
+  <span><i class="dot" style="background:#3b6fd4"></i> 用户 / 求职链路</span>
+  <span><i class="dot" style="background:#3a9d6b"></i> RAG 知识库</span>
+  <span><i class="dot" style="background:#7b4fd0"></i> AI 评测</span>
+  <span><span class="key">PK</span> 主键</span>
+  <span><span class="fk">FK</span> 外键</span>
+</div>
+
+<div class="grid">
+  <!-- users -->
+  <div class="entity blue">
+    <div class="head">users 用户 <small>10</small></div>
+    <table>
+      <tr><td><span class="fname"><span class="key">🔑</span> id</span></td><td class="ftype">UUID</td></tr>
+      <tr><td><span class="fname">email</span></td><td class="ftype">VARCHAR·UNIQUE</td></tr>
+      <tr><td><span class="fname">password_hash</span></td><td class="ftype">VARCHAR</td></tr>
+      <tr><td><span class="fname">name</span></td><td class="ftype">VARCHAR</td></tr>
+      <tr><td><span class="fname">target_role</span></td><td class="ftype">VARCHAR</td></tr>
+      <tr><td><span class="fname">created_at / updated_at</span></td><td class="ftype">TIMESTAMPTZ</td></tr>
+    </table>
+  </div>
+  <!-- jobs -->
+  <div class="entity blue">
+    <div class="head">jobs 岗位/JD <small>3</small></div>
+    <table>
+      <tr><td><span class="fname"><span class="key">🔑</span> id</span></td><td class="ftype">UUID</td></tr>
+      <tr><td><span class="fname"><span class="fk">FK</span> user_id</span></td><td class="ftype">UUID → users</td></tr>
+      <tr><td><span class="fname">title / company</span></td><td class="ftype">VARCHAR</td></tr>
+      <tr><td><span class="fname">jd_text</span></td><td class="ftype">TEXT</td></tr>
+      <tr><td><span class="fname">parsed_json</span></td><td class="ftype">JSONB</td></tr>
+      <tr><td><span class="fname">source</span></td><td class="ftype">VARCHAR</td></tr>
+    </table>
+  </div>
+  <!-- resumes -->
+  <div class="entity blue">
+    <div class="head">resumes 简历 <small>2</small></div>
+    <table>
+      <tr><td><span class="fname"><span class="key">🔑</span> id</span></td><td class="ftype">UUID</td></tr>
+      <tr><td><span class="fname"><span class="fk">FK</span> user_id</span></td><td class="ftype">UUID → users</td></tr>
+      <tr><td><span class="fname">file_url</span></td><td class="ftype">TEXT</td></tr>
+      <tr><td><span class="fname">raw_text</span></td><td class="ftype">TEXT</td></tr>
+      <tr><td><span class="fname">parsed_json</span></td><td class="ftype">JSONB</td></tr>
+      <tr><td><span class="fname">version</span></td><td class="ftype">INT·UK(user,ver)</td></tr>
+      <tr><td><span class="fname">status</span></td><td class="ftype">VARCHAR</td></tr>
+    </table>
+  </div>
+  <!-- matches -->
+  <div class="entity blue">
+    <div class="head">matches 匹配结果 <small>4·核心</small></div>
+    <table>
+      <tr><td><span class="fname"><span class="key">🔑</span> id</span></td><td class="ftype">UUID</td></tr>
+      <tr><td><span class="fname"><span class="fk">FK</span> resume_id</span></td><td class="ftype">UUID → resumes</td></tr>
+      <tr><td><span class="fname"><span class="fk">FK</span> job_id</span></td><td class="ftype">UUID → jobs</td></tr>
+      <tr><td><span class="fname">score</span></td><td class="ftype">NUMERIC(5,2)</td></tr>
+      <tr><td><span class="fname">dimension_json</span></td><td class="ftype">JSONB</td></tr>
+      <tr><td><span class="fname">strength_json</span></td><td class="ftype">JSONB</td></tr>
+      <tr><td><span class="fname">gap_json</span></td><td class="ftype">JSONB</td></tr>
+      <tr><td><span class="fname">suggestion</span></td><td class="ftype">TEXT</td></tr>
+    </table>
+  </div>
+  <!-- applications -->
+  <div class="entity blue">
+    <div class="head">applications 投递 <small>5</small></div>
+    <table>
+      <tr><td><span class="fname"><span class="key">🔑</span> id</span></td><td class="ftype">UUID</td></tr>
+      <tr><td><span class="fname"><span class="fk">FK</span> user_id</span></td><td class="ftype">UUID → users</td></tr>
+      <tr><td><span class="fname"><span class="fk">FK</span> job_id</span></td><td class="ftype">UUID → jobs</td></tr>
+      <tr><td><span class="fname">status</span></td><td class="ftype">VARCHAR</td></tr>
+      <tr><td><span class="fname">applied_at</span></td><td class="ftype">TIMESTAMPTZ</td></tr>
+      <tr><td><span class="fname">note</span></td><td class="ftype">TEXT</td></tr>
+    </table>
+  </div>
+  <!-- interviews -->
+  <div class="entity blue">
+    <div class="head">interviews 模拟面试 <small>6</small></div>
+    <table>
+      <tr><td><span class="fname"><span class="key">🔑</span> id</span></td><td class="ftype">UUID</td></tr>
+      <tr><td><span class="fname"><span class="fk">FK</span> user_id</span></td><td class="ftype">UUID → users</td></tr>
+      <tr><td><span class="fname"><span class="fk">FK</span> job_id</span></td><td class="ftype">UUID → jobs·SET NULL</td></tr>
+      <tr><td><span class="fname">score</span></td><td class="ftype">NUMERIC(5,2)</td></tr>
+      <tr><td><span class="fname">feedback_json</span></td><td class="ftype">JSONB</td></tr>
+      <tr><td><span class="fname">started_at / finished_at</span></td><td class="ftype">TIMESTAMPTZ</td></tr>
+    </table>
+  </div>
+  <!-- messages -->
+  <div class="entity blue">
+    <div class="head">messages 面试对话 <small>7</small></div>
+    <table>
+      <tr><td><span class="fname"><span class="key">🔑</span> id</span></td><td class="ftype">UUID</td></tr>
+      <tr><td><span class="fname"><span class="fk">FK</span> interview_id</span></td><td class="ftype">UUID → interviews</td></tr>
+      <tr><td><span class="fname">role</span></td><td class="ftype">VARCHAR</td></tr>
+      <tr><td><span class="fname">content</span></td><td class="ftype">TEXT</td></tr>
+      <tr><td><span class="fname">created_at</span></td><td class="ftype">TIMESTAMPTZ</td></tr>
+    </table>
+  </div>
+  <!-- documents -->
+  <div class="entity green">
+    <div class="head">documents 知识库文档 <small>8</small></div>
+    <table>
+      <tr><td><span class="fname"><span class="key">🔑</span> id</span></td><td class="ftype">UUID</td></tr>
+      <tr><td><span class="fname"><span class="fk">FK</span> user_id</span></td><td class="ftype">UUID → users</td></tr>
+      <tr><td><span class="fname">title</span></td><td class="ftype">VARCHAR</td></tr>
+      <tr><td><span class="fname">source</span></td><td class="ftype">VARCHAR</td></tr>
+      <tr><td><span class="fname">file_url</span></td><td class="ftype">TEXT</td></tr>
+      <tr><td><span class="fname">status</span></td><td class="ftype">VARCHAR</td></tr>
+    </table>
+  </div>
+  <!-- chunks -->
+  <div class="entity green">
+    <div class="head">chunks RAG 切片 <small>9</small></div>
+    <table>
+      <tr><td><span class="fname"><span class="key">🔑</span> id</span></td><td class="ftype">UUID</td></tr>
+      <tr><td><span class="fname"><span class="fk">FK</span> document_id</span></td><td class="ftype">UUID → documents</td></tr>
+      <tr><td><span class="fname">chunk_index</span></td><td class="ftype">INT</td></tr>
+      <tr><td><span class="fname">content</span></td><td class="ftype">TEXT</td></tr>
+      <tr><td><span class="fname">embedding</span></td><td class="ftype">VECTOR(1536)</td></tr>
+    </table>
+  </div>
+  <!-- evaluations -->
+  <div class="entity purple">
+    <div class="head">evaluations AI 评测 <small>10</small></div>
+    <table>
+      <tr><td><span class="fname"><span class="key">🔑</span> id</span></td><td class="ftype">UUID</td></tr>
+      <tr><td><span class="fname">case_id</span></td><td class="ftype">VARCHAR</td></tr>
+      <tr><td><span class="fname">task_type</span></td><td class="ftype">VARCHAR</td></tr>
+      <tr><td><span class="fname">model</span></td><td class="ftype">VARCHAR</td></tr>
+      <tr><td><span class="fname">prompt_version</span></td><td class="ftype">VARCHAR</td></tr>
+      <tr><td><span class="fname">output_json</span></td><td class="ftype">JSONB</td></tr>
+      <tr><td><span class="fname">is_valid / score</span></td><td class="ftype">BOOL / NUM</td></tr>
+      <tr><td><span class="fname">latency_ms / cost</span></td><td class="ftype">INT / NUM</td></tr>
+    </table>
+  </div>
+</div>
+
+<h2 class="rel-title">关系明细（11 个外键）</h2>
+<table class="rel">
+  <tr><th>父表</th><th>关系</th><th>子表</th><th>关联键</th><th>删除策略</th></tr>
+  <tr><td>users</td><td>1 ── N</td><td>resumes</td><td>resumes.user_id</td><td>CASCADE</td></tr>
+  <tr><td>users</td><td>1 ── N</td><td>jobs</td><td>jobs.user_id</td><td>CASCADE</td></tr>
+  <tr><td>users</td><td>1 ── N</td><td>applications</td><td>applications.user_id</td><td>CASCADE</td></tr>
+  <tr><td>users</td><td>1 ── N</td><td>interviews</td><td>interviews.user_id</td><td>CASCADE</td></tr>
+  <tr><td>users</td><td>1 ── N</td><td>documents</td><td>documents.user_id</td><td>CASCADE</td></tr>
+  <tr><td>resumes</td><td>1 ── N</td><td>matches</td><td>matches.resume_id</td><td>CASCADE</td></tr>
+  <tr><td>jobs</td><td>1 ── N</td><td>matches</td><td>matches.job_id</td><td>CASCADE</td></tr>
+  <tr><td>jobs</td><td>1 ── N</td><td>applications</td><td>applications.job_id</td><td>CASCADE</td></tr>
+  <tr><td>jobs</td><td>1 ── N</td><td>interviews</td><td>interviews.job_id</td><td>SET NULL</td></tr>
+  <tr><td>interviews</td><td>1 ── N</td><td>messages</td><td>messages.interview_id</td><td>CASCADE</td></tr>
+  <tr><td>documents</td><td>1 ── N</td><td>chunks</td><td>chunks.document_id</td><td>CASCADE</td></tr>
+</table>
+
+<div class="foot">AI Career Copilot · ER v0.1 · 已通过 PostgreSQL 实际建表 + 级联删除验证</div>
+</body>
+</html>
