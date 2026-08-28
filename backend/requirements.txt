@@ -1,4 +1,4 @@
-# AI Career Copilot · Backend 依赖（第 6 步骨架版）
+# AI Career Copilot · Backend 依赖（第 7 步：+认证）
 fastapi>=0.115
 uvicorn[standard]>=0.30
 sqlalchemy>=2.0
@@ -7,3 +7,7 @@ pydantic>=2.8
 pydantic-settings>=2.4
 python-dotenv>=1.0
 python-multipart>=0.0.9
+# 认证（第 7 步）
+bcrypt>=4.2
+PyJWT>=2.9
+email-validator>=2.2
