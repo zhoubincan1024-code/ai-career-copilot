@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Career Copilot · 线框原型（Wireframe）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f5f6f8; color: #333; padding-bottom: 60px; }
+  .topbar { background: #2b2f36; color: #fff; padding: 12px 24px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 100; }
+  .topbar .brand { font-weight: bold; font-size: 15px; white-space: nowrap; }
+  .topbar .brand span { color: #7fb0ff; }
+  .topbar nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  .topbar nav button { background: transparent; color: #ccc; border: 1px solid transparent; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+  .topbar nav button:hover { color: #fff; }
+  .topbar nav button.active { background: #3a3f47; color: #fff; border-color: #7fb0ff; }
+  .topbar .right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  .topbar .right button { background: #3a3f47; color: #fff; border: 1px solid #555; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+  .page { display: none; max-width: 1200px; margin: 24px auto; padding: 0 24px; }
+  .page.active { display: block; }
+  body.overview .page { display: block; margin-bottom: 40px; }
+  .page-header { margin-bottom: 16px; }
+  .page-header h1 { font-size: 20px; }
+  .page-header p { color: #888; font-size: 13px; margin-top: 4px; }
+  .wf { border: 1px dashed #aaa; background: #fff; border-radius: 6px; }
+  .wf .wf-head { border-bottom: 1px dashed #ccc; padding: 10px 16px; font-size: 12px; color: #666; background: #fafafa; display: flex; justify-content: space-between; }
+  .wf .wf-head .tag { color: #7b4fd0; font-weight: bold; }
+  .wf .wf-body { padding: 16px; display: grid; gap: 12px; }
+  .block { border: 1px dashed #bbb; border-radius: 4px; padding: 12px; background: #fff; position: relative; }
+  .block .b-title { font-size: 13px; font-weight: bold; color: #444; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .block .b-title .hint { font-weight: normal; color: #aaa; font-size: 11px; }
+  .placeholder { border: 1px solid #ddd; background: #f3f4f6; border-radius: 4px; color: #999; font-size: 12px; display: flex; align-items: center; justify-content: center; min-height: 48px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .grid-kpi { grid-template-columns: repeat(4, 1fr); }
+  .btn { display: inline-block; border: 1px solid #999; background: #fff; color: #333; padding: 6px 14px; border-radius: 4px; font-size: 13px; }
+  .btn.primary { background: #4a7dfc; border-color: #4a7dfc; color: #fff; }
+  .btn.sm { padding: 3px 10px; font-size: 12px; }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .row.gap8 { gap: 8px; }
+  .filler { flex: 1; }
+  .table { border: 1px solid #ddd; border-radius: 4px; overflow: hidden; font-size: 13px; }
+  .table .tr { display: grid; grid-template-columns: repeat(var(--cols,4), 1fr); border-bottom: 1px solid #eee; }
+  .table .tr:last-child { border-bottom: none; }
+  .table .tr.head { background: #f7f8fa; color: #666; font-weight: bold; }
+  .table .td { padding: 8px 10px; }
+  .bar { height: 8px; background: #e6e8ec; border-radius: 4px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: #4a7dfc; }
+  .bar.green > i { background: #4caf7d; }
+  .bar.red > i { background: #e05555; }
+  .bar.orange > i { background: #f0a030; }
+  .score { font-size: 34px; font-weight: bold; color: #4a7dfc; }
+  .score small { font-size: 13px; color: #999; font-weight: normal; }
+  .gap-item { border: 1px solid #ffd9a8; background: #fff7ed; border-radius: 4px; padding: 8px 10px; font-size: 13px; margin-bottom: 8px; }
+  .ok-item { border: 1px solid #bfe6cd; background: #f0faf4; border-radius: 4px; padding: 8px 10px; font-size: 13px; margin-bottom: 8px; }
+  .chat { display: flex; flex-direction: column; gap: 10px; }
+  .chat .msg { max-width: 75%; padding: 9px 12px; border-radius: 8px; font-size: 13px; border: 1px solid #ddd; }
+  .chat .msg.ai { align-self: flex-start; background: #f3f6ff; border-color: #c6d6ff; }
+  .chat .msg.user { align-self: flex-end; background: #eef2f5; }
+  .bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 110px; padding: 10px 0; }
+  .bar-chart .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar-chart .col .v { width: 100%; background: #4a7dfc; border-radius: 3px 3px 0 0; min-height: 6px; }
+  .bar-chart .col .l { font-size: 11px; color: #888; }
+  .note { font-size: 12px; color: #999; margin-top: 8px; }
+  .foot { text-align: center; color: #aaa; font-size: 12px; margin-top: 40px; }
+  @media (max-width: 800px) { .grid2, .grid3, .grid4, .grid-kpi { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">AI Career <span>Copilot</span> · 线框原型</div>
+  <nav id="nav"></nav>
+  <div class="right">
+    <button onclick="toggleOverview()">全览 / 单页</button>
+  </div>
+</div>
+
+<!-- 页面模板由 JS 注入：每个 .page 独立 -->
+
+<script>
+const PAGES = [
+  { id:"dashboard", name:"1 Dashboard", title:"Dashboard · 求职总览", desc:"求职进度、匹配岗位、面试表现、AI 建议。点击卡片进入详情。", build: buildDashboard },
+  { id:"resume", name:"2 Resume", title:"Resume · 简历管理", desc:"简历列表、解析状态、版本管理。上传/查看/优化。", build: buildResume },
+  { id:"job", name:"3 Job Analysis", title:"Job Analysis · JD 分析", desc:"职位要求、技能、经验、关键词抽取。上传 JD / 粘贴文本。", build: buildJob },
+  { id:"match", name:"4 Match Result", title:"Match Result · 岗位匹配", desc:"总分、维度分、Gap、建议。一键优化简历。", build: buildMatch },
+  { id:"optimizer", name:"5 Resume Optimizer", title:"Resume Optimizer · 简历优化", desc:"原文 / 建议稿 / 修改原因。接受/拒绝修改。", build: buildOptimizer },
+  { id:"kb", name:"6 Knowledge Base", title:"Knowledge Base · 求职知识库", desc:"文档列表、检索、问答。上传/删除/提问（RAG）。", build: buildKB },
+  { id:"interview", name:"7 Interview", title:"Interview · AI 模拟面试", desc:"面试官、问题、对话区、计时。回答/追问/结束。", build: buildInterview },
+  { id:"evaluation", name:"8 Evaluation", title:"Evaluation · 评测中心", desc:"准确率、幻觉率、延迟、成本。按模型/Prompt 筛选。", build: buildEvaluation },
+  { id:"analytics", name:"9 Analytics", title:"Analytics · 数据分析", desc:"漏斗、来源、岗位、转化。时间范围筛选。", build: buildAnalytics },
+];
+
+let current = "dashboard";
+
+function navBtn(p, i){
+  const b = document.createElement("button");
+  b.textContent = p.name;
+  b.className = p.id === current ? "active" : "";
+  b.onclick = () => show(p.id);
+  return b;
+}
+
+function init(){
+  const params = new URLSearchParams(location.search);
+  if (params.get("overview")) document.body.classList.add("overview");
+  if (params.get("page")) current = params.get("page");
+  const nav = document.getElementById("nav");
+  PAGES.forEach((p,i)=> nav.appendChild(navBtn(p,i)));
+  PAGES.forEach(p=>{
+    const div = document.createElement("div");
+    div.className = "page" + (p.id===current?" active":"");
+    div.id = "pg-"+p.id;
+    const h = document.createElement("div");
+    h.className = "page-header";
+    h.innerHTML = `<h1>${p.title}</h1><p>${p.desc}</p>`;
+    div.appendChild(h);
+    const wf = document.createElement("div");
+    wf.className = "wf";
+    const wh = document.createElement("div");
+    wh.className = "wf-head";
+    wh.innerHTML = `<span>${p.name} — ${p.title}</span><span class="tag">Wireframe v0.1</span>`;
+    wf.appendChild(wh);
+    const body = document.createElement("div");
+    body.className = "wf-body";
+    p.build(body);
+    wf.appendChild(body);
+    div.appendChild(wf);
+    document.body.appendChild(div);
+  });
+}
+
+function show(id){
+  current = id;
+  document.querySelectorAll(".page").forEach(el=>el.classList.remove("active"));
+  document.getElementById("pg-"+id).classList.add("active");
+  document.querySelectorAll("#nav button").forEach((b,i)=> b.classList.toggle("active", PAGES[i].id===id));
+}
+function toggleOverview(){ document.body.classList.toggle("overview"); }
+
+/* ---------- 1 Dashboard ---------- */
+function buildDashboard(b){
+  b.innerHTML = `
+  <div class="grid-kpi grid4">
+    <div class="block"><div class="b-title">匹配度总览</div><div class="score">76<small> / 100</small></div><div class="bar" style="margin-top:8px"><i style="width:76%"></i></div><div class="note">较上次 +5</div></div>
+    <div class="block"><div class="b-title">投递进度</div><div class="score">24<small> 家</small></div><div class="row gap8" style="margin-top:8px"><span class="btn sm">面试 3</span><span class="btn sm">Offer 1</span></div></div>
+    <div class="block"><div class="b-title">面试表现</div><div class="score">82<small> 分</small></div><div class="bar green" style="margin-top:8px"><i style="width:82%"></i></div><div class="note">最近 3 场平均</div></div>
+    <div class="block"><div class="b-title">本周行动</div><div class="note" style="margin-top:4px">待优化 2 份简历<br>待复盘 1 场面试</div></div>
+  </div>
+  <div class="grid2">
+    <div class="block"><div class="b-title">投递漏斗（简版）<span class="hint">点击进入 Analytics</span></div>
+      <div class="row" style="align-items:flex-end">
+        <div class="col" style="flex:1;text-align:center"><div class="bar" style="margin:0 auto;width:70%"><i style="width:100%"></i></div><div class="note">投递 24</div></div>
+        <div class="col" style="flex:1;text-align:center"><div class="bar" style="margin:0 auto;width:50%"><i style="width:38%"></i></div><div class="note">笔试/面试 9</div></div>
+        <div class="col" style="flex:1;text-align:center"><div class="bar green" style="margin:0 auto;width:30%"><i style="width:100%"></i></div><div class="note">Offer 1</div></div>
+      </div>
+    </div>
+    <div class="block"><div class="b-title">近期匹配岗位<span class="hint">点击卡片进详情</span></div>
+      <div class="table"><div class="tr head"><div class="td">岗位</div><div class="td">匹配度</div><div class="td">Gap 数</div><div class="td">操作</div></div>
+        <div class="tr"><div class="td">AI 产品经理</div><div class="td"><div class="bar" style="width:70px"><i style="width:86%"></i></div></div><div class="td">2</div><div class="td"><span class="btn sm">查看</span></div></div>
+        <div class="tr"><div class="td">产品运营</div><div class="td"><div class="bar" style="width:70px"><i style="width:64%"></i></div></div><div class="td">4</div><div class="td"><span class="btn sm">查看</span></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="block"><div class="b-title">AI 行动建议<span class="hint">基于本周数据生成</span></div>
+    <div class="row gap8"><span class="btn sm primary">1</span><span>下周优先提升「数据分析」关键词覆盖，可补 2 个匹配岗位的 Gap。</span></div>
+    <div class="row gap8" style="margin-top:8px"><span class="btn sm primary">2</span><span>「AI 模拟面试」完成率仅 60%，建议先练 3 场再投递。</span></div>
+  </div>`;
+}
+
+/* ---------- 2 Resume ---------- */
+function buildResume(b){
+  b.innerHTML = `
+  <div class="row">
+    <div class="btn primary">+ 上传简历（PDF/文本）</div>
+    <div class="note">支持 PDF / 粘贴文本，自动结构化解析</div>
+  </div>
+  <div class="block"><div class="b-title">简历列表</div>
+    <div class="table" style="--cols:5">
+      <div class="tr head"><div class="td">版本</div><div class="td">名称</div><div class="td">解析状态</div><div class="td">技能数</div><div class="td">操作</div></div>
+      <div class="tr"><div class="td">v3（当前）</div><div class="td">软件工程-校招通用</div><div class="td"><span style="color:#4caf7d">✓ 已解析</span></div><div class="td">12</div><div class="td"><span class="btn sm">查看</span> <span class="btn sm">优化</span></div></div>
+      <div class="tr"><div class="td">v2</div><div class="td">测试方向</div><div class="td"><span style="color:#4caf7d">✓ 已解析</span></div><div class="td">9</div><div class="td"><span class="btn sm">查看</span></div></div>
+      <div class="tr"><div class="td">v1</div><div class="td">初版</div><div class="td"><span style="color:#f0a030">⚠ 解析中</span></div><div class="td">-</div><div class="td"><span class="btn sm">重传</span></div></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="block"><div class="b-title">解析结果预览（教育/技能/项目）</div>
+      <div class="placeholder" style="min-height:80px">教育：天津科技大学 · 软件工程<br>技能：Python / Java / 测试 / 数据库 …<br>项目：2 个（详见 JSON）</div>
+    </div>
+    <div class="block"><div class="b-title">操作区</div>
+      <div class="row"><span class="btn sm">查看结构化 JSON</span><span class="btn sm">版本对比</span></div>
+      <div class="note" style="margin-top:8px">解析失败提示：文本过短 / 格式无法识别</div>
+    </div>
+  </div>`;
+}
+
+/* ---------- 3 Job Analysis ---------- */
+function buildJob(b){
+  b.innerHTML = `
+  <div class="row">
+    <div class="btn primary">上传 JD 文件</div>
+    <div class="btn">粘贴 JD 文本</div>
+    <div class="note">MVP 支持粘贴文本，不做自动抓取</div>
+  </div>
+  <div class="grid2">
+    <div class="block"><div class="b-title">JD 原文（示例）</div>
+      <div class="placeholder" style="min-height:120px;justify-content:flex-start;padding:12px;color:#666">AI 产品经理（校招）<br>· 负责 AI 产品需求分析与方案设计<br>· 熟悉大模型/RAG/Agent 优先<br>· 具备数据分析能力 · 本科及以上 …</div>
+    </div>
+    <div class="block"><div class="b-title">结构化解析结果</div>
+      <div class="table" style="--cols:2">
+        <div class="tr head"><div class="td">字段</div><div class="td">抽取结果</div></div>
+        <div class="tr"><div class="td">岗位名称</div><div class="td">AI 产品经理</div></div>
+        <div class="tr"><div class="td">硬性技能</div><div class="td">需求分析、数据分析</div></div>
+        <div class="tr"><div class="td">加分技能</div><div class="td">大模型、RAG、Agent</div></div>
+        <div class="tr"><div class="td">经验要求</div><div class="td">校招（0~1 年）</div></div>
+        <div class="tr"><div class="td">关键词</div><div class="td">PRD、用户研究、指标体系</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="block"><div class="b-title">招聘意图解读<span class="hint">AI 生成，说明该岗位真正看重什么</span></div>
+    <div class="note" style="color:#555">该岗位虽是校招，但明确要求「AI 方向」项目经验；硬性门槛低，差异化在能否证明 AI 产品落地能力 → 建议优先匹配「AI 相关项目经历」。</div>
+  </div>`;
+}
+
+/* ---------- 4 Match Result ---------- */
+function buildMatch(b){
+  b.innerHTML = `
+  <div class="grid-kpi grid4">
+    <div class="block"><div class="b-title">匹配总分</div><div class="score">76<small>/100</small></div><div class="bar" style="margin-top:8px"><i style="width:76%"></i></div></div>
+    <div class="block"><div class="b-title">技能匹配</div><div class="score" style="color:#4caf7d">88</div><div class="bar green" style="margin-top:8px"><i style="width:88%"></i></div></div>
+    <div class="block"><div class="b-title">经验匹配</div><div class="score" style="color:#f0a030">61</div><div class="bar orange" style="margin-top:8px"><i style="width:61%"></i></div></div>
+    <div class="block"><div class="b-title">表达/关键词</div><div class="score" style="color:#e05555">52</div><div class="bar red" style="margin-top:8px"><i style="width:52%"></i></div></div>
+  </div>
+  <div class="grid2">
+    <div class="block"><div class="b-title">✅ 你的优势</div>
+      <div class="ok-item">Python / 前后端工程能力 —— 依据：项目经历「AI 求职助手」</div>
+      <div class="ok-item">软件测试方法论 —— 依据：实习经历</div>
+    </div>
+    <div class="block"><div class="b-title">⚠ Gap（差距项）<span class="hint">可解释：每条对应 JD 某条要求</span></div>
+      <div class="gap-item">缺少「AI 产品落地」关键词 —— 对应 JD「熟悉大模型/RAG/Agent 优先」</div>
+      <div class="gap-item">数据分析能力未被简历体现 —— 对应 JD「具备数据分析能力」</div>
+      <div class="gap-item">表达偏技术、缺用户视角 —— 对应 JD「需求分析」</div>
+    </div>
+  </div>
+  <div class="block"><div class="b-title">行动建议</div>
+    <div class="row"><span class="btn primary">一键优化简历</span><span class="btn">进入模拟面试</span><span class="btn">记录投递</span></div>
+    <div class="note" style="margin-top:8px">建议优先级：先补「AI 落地」关键词 → 再优化数据分析表述 → 用面试验证表达。</div>
+  </div>`;
+}
+
+/* ---------- 5 Resume Optimizer ---------- */
+function buildOptimizer(b){
+  b.innerHTML = `
+  <div class="row"><span class="note">优化目标：AI 产品经理（校招）</span><div class="filler"></div><span class="btn sm">接受全部</span><span class="btn sm">拒绝全部</span></div>
+  <div class="grid2">
+    <div class="block"><div class="b-title">原文（第 2 段 · 项目经历）</div>
+      <div class="placeholder" style="min-height:90px;justify-content:flex-start;padding:12px;color:#666">「负责开发 AI 求职助手，使用 Python 与 React，完成简历解析与匹配功能。」</div>
+    </div>
+    <div class="block"><div class="b-title">建议稿 + 修改原因<span class="hint">逐段</span></div>
+      <div class="ok-item"><b>建议稿：</b>「主导 AI 求职助手产品设计与开发：基于 LLM Structured Output 实现简历/JD 结构化解析，构建可解释的多维岗位匹配评分，沉淀 50+ 条评测用例，驱动 3 轮 Prompt 迭代。」</div>
+      <div class="gap-item"><b>为什么改：</b>① 补充结果与量化（评测用例/迭代轮数）② 对齐 JD 关键词「AI 产品」「RAG」③ 从「做了什么」改为「做成了什么」。</div>
+    </div>
+  </div>
+  <div class="row"><span class="btn primary">接受此修改</span><span class="btn">拒绝</span><span class="btn">手动编辑</span></div>
+  <div class="note">修改全部基于你已有真实经历，AI 不会编造经历；每处修改可追溯到 JD 对应要求。</div>`;
+}
+
+/* ---------- 6 Knowledge Base ---------- */
+function buildKB(b){
+  b.innerHTML = `
+  <div class="row">
+    <div class="btn primary">+ 上传资料（PDF/MD）</div>
+    <input placeholder="  🔍  向知识库提问…" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px">
+    <div class="btn">提问</div>
+  </div>
+  <div class="grid2">
+    <div class="block"><div class="b-title">资料列表（RAG 索引）</div>
+      <div class="table" style="--cols:3">
+        <div class="tr head"><div class="td">资料</div><div class="td">切片数</div><div class="td">状态</div></div>
+        <div class="tr"><div class="td">AI 产品经理面试题 100</div><div class="td">45</div><div class="td">✓ 已索引</div></div>
+        <div class="tr"><div class="td">PRD 方法论手册</div><div class="td">32</div><div class="td">✓ 已索引</div></div>
+        <div class="tr"><div class="td">RAG/Agent 基础</div><div class="td">28</div><div class="td">✓ 已索引</div></div>
+      </div>
+      <div class="note" style="margin-top:8px">切分策略：500~800 tokens，按标题优先</div>
+    </div>
+    <div class="block"><div class="b-title">问答结果（带来源引用）</div>
+      <div class="chat">
+        <div class="msg user">「RAG 如何控制幻觉？」</div>
+        <div class="msg ai">RAG 通过「检索→引用→作答」控制幻觉：回答必须基于检索到的上下文片段，并在答案中标注引用来源……<br><br><span style="color:#4a7dfc">📎 引用：RAG/Agent 基础.md §3.2</span></div>
+        <div class="msg ai" style="background:#fff7ed;border-color:#ffd9a8">未找到相关资料时：我会直接说明「知识库中暂无相关内容」，而不会编造。</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------- 7 Interview ---------- */
+function buildInterview(b){
+  b.innerHTML = `
+  <div class="row">
+    <div class="block" style="flex:1;margin:0"><div class="b-title">岗位：AI 产品经理（校招） · 面试官：资深 AI PM</div>
+      <div class="row"><span class="btn sm primary">难度：进阶</span><span class="btn sm">问题 3 / 8</span><span class="btn sm">⏱ 00:02:14</span><span class="btn sm">结束面试</span></div>
+    </div>
+  </div>
+  <div class="block" style="margin-top:12px"><div class="b-title">当前问题</div>
+    <div style="font-size:14px">「你在 AI 求职助手中做过哪些产品决策？如果现在 DAU 不增长，你会怎么分析？」</div>
+  </div>
+  <div class="block" style="margin-top:12px"><div class="b-title">对话区</div>
+    <div class="chat">
+      <div class="msg ai">追问策略：先讲决策背景（STAR）→ 给出指标 → 提出分析假设</div>
+      <div class="msg user">（用户回答输入框 / 语音转文字占位）</div>
+    </div>
+    <div class="row" style="margin-top:12px"><input placeholder=" 输入你的回答…（回车发送）" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px"><div class="btn primary">发送</div></div>
+  </div>
+  <div class="note">面试结束后生成：能力评分（专业/表达/逻辑/匹配度）+ 逐题反馈 + 改进建议</div>`;
+}
+
+/* ---------- 8 Evaluation ---------- */
+function buildEvaluation(b){
+  b.innerHTML = `
+  <div class="row">
+    <div class="btn sm">模型：全部 ▾</div>
+    <div class="btn sm">Prompt 版本：全部 ▾</div>
+    <div class="btn sm">测试集：50 条 ▾</div>
+    <div class="filler"></div>
+    <span class="note">数据来源：实际评测脚本，非虚构</span>
+  </div>
+  <div class="grid-kpi grid4">
+    <div class="block"><div class="b-title">JSON Validity</div><div class="score" style="color:#4caf7d">99.2%</div><div class="note">目标 &gt;99%</div></div>
+    <div class="block"><div class="b-title">Answer Accuracy</div><div class="score" style="color:#4caf7d">92%</div><div class="note">目标 &gt;90%</div></div>
+    <div class="block"><div class="b-title">Faithfulness</div><div class="score" style="color:#4caf7d">91%</div><div class="note">目标 &gt;90%</div></div>
+    <div class="block"><div class="b-title">Hallucination</div><div class="score" style="color:#e05555">3.8%</div><div class="note">目标 &lt;5%</div></div>
+  </div>
+  <div class="grid2">
+    <div class="block"><div class="b-title">延迟 / 成本趋势</div>
+      <div class="bar-chart">
+        <div class="col"><div class="v" style="height:70%"></div><div class="l">W1</div></div>
+        <div class="col"><div class="v" style="height:55%"></div><div class="l">W2</div></div>
+        <div class="col"><div class="v" style="height:48%"></div><div class="l">W3</div></div>
+        <div class="col"><div class="v" style="height:42%"></div><div class="l">W4</div></div>
+      </div>
+    </div>
+    <div class="block"><div class="b-title">按 Prompt 版本对比</div>
+      <div class="table" style="--cols:3">
+        <div class="tr head"><div class="td">版本</div><div class="td">准确率</div><div class="td">延迟</div></div>
+        <div class="tr"><div class="td">jd_parser/v1</div><div class="td">88%</div><div class="td">3.1s</div></div>
+        <div class="tr"><div class="td">jd_parser/v2</div><div class="td">92%</div><div class="td">2.8s</div></div>
+      </div>
+      <div class="note" style="margin-top:8px">结论：v2 通过 Few-shot 样例使准确率 +4%，已采纳</div>
+    </div>
+  </div>`;
+}
+
+/* ---------- 9 Analytics ---------- */
+function buildAnalytics(b){
+  b.innerHTML = `
+  <div class="row">
+    <div class="btn sm">时间范围：近 30 天 ▾</div>
+    <div class="btn sm">岗位类型：全部 ▾</div>
+    <div class="btn sm">来源渠道：全部 ▾</div>
+  </div>
+  <div class="grid-kpi grid4">
+    <div class="block"><div class="b-title">投递数</div><div class="score">24</div></div>
+    <div class="block"><div class="b-title">面试数</div><div class="score">9</div></div>
+    <div class="block"><div class="b-title">Offer 数</div><div class="score">1</div></div>
+    <div class="block"><div class="b-title">投递→面试转化</div><div class="score" style="color:#f0a030">37.5%</div></div>
+  </div>
+  <div class="grid2">
+    <div class="block"><div class="b-title">转化漏斗</div>
+      <div class="bar-chart">
+        <div class="col"><div class="v" style="height:100%"></div><div class="l">投递 24</div></div>
+        <div class="col"><div class="v" style="height:62%"></div><div class="l">笔试 15</div></div>
+        <div class="col"><div class="v" style="height:38%"></div><div class="l">面试 9</div></div>
+        <div class="col"><div class="v" style="height:12%"></div><div class="l">Offer 1</div></div>
+      </div>
+    </div>
+    <div class="block"><div class="b-title">按岗位来源分布</div>
+      <div class="table" style="--cols:3">
+        <div class="tr head"><div class="td">来源</div><div class="td">投递</div><div class="td">面试率</div></div>
+        <div class="tr"><div class="td">校招官网</div><div class="td">10</div><div class="td">40%</div></div>
+        <div class="tr"><div class="td">招聘 App</div><div class="td">9</div><div class="td">33%</div></div>
+        <div class="tr"><div class="td">内推</div><div class="td">5</div><div class="td">60%</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="block"><div class="b-title">洞察（数据驱动）</div>
+    <div class="note" style="color:#555">内推面试率（60%）显著高于 App 投递（33%）→ 建议下一阶段加大内推渠道；「AI 产品经理」岗位匹配度均值最高（82 分），可作为主攻方向。</div>
+  </div>`;
+}
+
+init();
+</script>
+
+<div class="foot">AI Career Copilot · Wireframe v0.1 · 对应 PRD v0.1 · 9 个页面</div>
+</body>
+</html>
