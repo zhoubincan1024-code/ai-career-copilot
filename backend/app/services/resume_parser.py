@@ -3,38 +3,18 @@ import json
 import uuid
 from pathlib import Path
 
-import pypdf
-
 from app.core.config import settings
 from app.services import llm as llm_service
+from app.services.document import extract_text  # 文本抽取公共模块
 
 # 项目根 = backend/app/services 上溯 3 级
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 PROMPT_FILE = PROJECT_ROOT / "ai" / "prompts" / "resume_parser" / "v1.md"
 
-ALLOWED_EXTENSIONS = {".pdf", ".txt", ".md"}
-MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
-
 
 def load_system_prompt() -> str:
     """读取解析 Prompt（版本管理：ai/prompts/resume_parser/v1.md）"""
     return PROMPT_FILE.read_text(encoding="utf-8")
-
-
-def extract_text(filename: str, content: bytes) -> str:
-    """从上传文件抽取纯文本：支持 PDF / txt / md"""
-    suffix = Path(filename).suffix.lower()
-    if suffix not in ALLOWED_EXTENSIONS:
-        raise ValueError(f"不支持的文件类型: {suffix}，仅支持 {sorted(ALLOWED_EXTENSIONS)}")
-    if len(content) > MAX_FILE_SIZE:
-        raise ValueError("文件超过 5MB 限制")
-
-    if suffix == ".pdf":
-        reader = pypdf.PdfReader(__import__("io").BytesIO(content))
-        pages = [page.extract_text() or "" for page in reader.pages]
-        return "\n".join(pages).strip()
-    # txt / md
-    return content.decode("utf-8", errors="replace").strip()
 
 
 def parse_resume(raw_text: str) -> dict:
