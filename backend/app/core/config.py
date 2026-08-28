@@ -11,8 +11,8 @@ class Settings(BaseSettings):
     # 数据库连接（本地开发默认；部署时由 docker-compose / .env 覆盖）
     database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/ai_career_copilot"
 
-    # JWT
-    secret_key: str = "dev-only-secret-key-change-in-prod"
+    # JWT（生产环境务必通过 .env 覆盖为随机长密钥）
+    secret_key: str = "dev-only-secret-key-change-in-prod-0123456789abcdef"
     jwt_algorithm: str = "HS256"
     access_token_expire_hours: int = 24
 
