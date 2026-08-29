@@ -47,6 +47,19 @@ export default function ResumesPage() {
     }
   };
 
+  const handleDelete = async (id: string, name: string) => {
+    if (!window.confirm(`确定要删除简历「${name}」吗？此操作不可恢复。`)) return;
+    setError("");
+    setSuccess("");
+    try {
+      await resumeApi.remove(id);
+      setSuccess("简历已删除");
+      load();
+    } catch (e: any) {
+      setError(e.message || "删除失败");
+    }
+  };
+
   if (loading || !user) {
     return <div className="p-8 text-center text-zinc-400">加载中...</div>;
   }
@@ -115,8 +128,17 @@ export default function ResumesPage() {
                     {p.education?.length ?? 0} 段教育 · {p.projects?.length ?? 0} 个项目
                   </div>
                 </div>
-                <div className="text-xs text-zinc-400">
-                  {new Date(r.created_at).toLocaleString("zh-CN")}
+                <div className="flex items-center gap-4">
+                  <div className="text-xs text-zinc-400">
+                    {new Date(r.created_at).toLocaleString("zh-CN")}
+                  </div>
+                  <button
+                    onClick={() => handleDelete(r.id, basic.name || "未命名简历")}
+                    className="rounded-md px-2 py-1 text-xs text-zinc-400 transition hover:bg-red-50 hover:text-red-600"
+                    title="删除简历"
+                  >
+                    删除
+                  </button>
                 </div>
               </div>
             );

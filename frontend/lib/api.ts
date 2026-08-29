@@ -60,6 +60,8 @@ async function request<T = any>(
     const data = await res.json().catch(() => ({}));
     throw new Error(extractError(data, res.status));
   }
+  // 204 No Content 没有响应体
+  if (res.status === 204) return null as unknown as T;
   return res.json() as Promise<T>;
 }
 
@@ -84,6 +86,7 @@ export const resumeApi = {
   },
   list: () => request<any[]>("/resumes"),
   get: (id: string) => request(`/resumes/${id}`),
+  remove: (id: string) => request(`/resumes/${id}`, { method: "DELETE" }),
 };
 
 // ---------- JD ----------

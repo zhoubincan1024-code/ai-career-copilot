@@ -1,5 +1,6 @@
-"""简历接口：上传 / 列表 / 详情"""
+"""简历接口：上传 / 列表 / 详情 / 删除"""
 import uuid
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
@@ -96,6 +97,30 @@ def get_resume(
     if resume is None or resume.user_id != current.id:
         raise HTTPException(status_code=404, detail="简历不存在")
     return resume
+
+
+@router.delete("/{resume_id}", status_code=204)
+def delete_resume(
+    resume_id: uuid.UUID,
+    current: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> None:
+    """删除简历（同时清理上传的源文件）"""
+    resume = db.get(Resume, resume_id)
+    if resume is None or resume.user_id != current.id:
+        raise HTTPException(status_code=404, detail="简历不存在")
+
+    # 尝试删除上传的源文件，失败不影响数据库删除
+    if resume.file_url:
+        try:
+            p = Path(resume.file_url)
+            if p.is_file():
+                p.unlink()
+        except OSError:
+            pass
+
+    db.delete(resume)
+    db.commit()
 
 
 def _next_version(db: Session, user_id: uuid.UUID) -> int:
