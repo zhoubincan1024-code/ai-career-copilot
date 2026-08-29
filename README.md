@@ -49,16 +49,27 @@
 
 ---
 
-## 🖼️ 产品原型（Wireframe）
+## 🖥️ 真实运行界面
 
-9 个页面的线框原型（`docs/prototype.html`），对应 PRD v0.1：
+以下为项目实际运行截图（Next.js 前端 + FastAPI 后端，本地 Docker / 开发模式启动）：
 
-| 核心页面 | 预览 |
-|---|---|
-| Dashboard · 求职总览 | ![dashboard](docs/preview-dashboard.png) |
-| Match · 岗位匹配结果 | ![match](docs/preview-match.png) |
-| Interview · AI 模拟面试 | ![interview](docs/preview-interview.png) |
-| Analytics · 投递数据分析 | ![analytics](docs/preview-analytics.png) |
+| Dashboard · 求职总览 | 简历管理 |
+|:---:|:---:|
+| ![dashboard](docs/screenshots/03-dashboard.png) | ![resumes](docs/screenshots/04-resumes.png) |
+
+| 岗位 JD 分析 | 岗位匹配 |
+|:---:|:---:|
+| ![jobs](docs/screenshots/05-jobs.png) | ![matches](docs/screenshots/06-matches.png) |
+
+| AI 模拟面试 | RAG 知识库 |
+|:---:|:---:|
+| ![interview](docs/screenshots/07-interview.png) | ![knowledge](docs/screenshots/08-knowledge.png) |
+
+| 投递管理与漏斗分析 | 登录 / 注册 |
+|:---:|:---:|
+| ![applications](docs/screenshots/09-applications.png) | ![login](docs/screenshots/01-login.png) |
+
+> 设计阶段的 9 页线框原型见 `docs/prototype.html`，ER 图见 `docs/database-er.png`。
 
 ---
 
