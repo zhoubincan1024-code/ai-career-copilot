@@ -1,12 +1,12 @@
-# AI Career Copilot · Docker Compose（第 6 步骨架，第 17 步部署时完善）
-# 本地开发：docker compose up db redis 即可获得数据库与缓存
-# 完整启动：docker compose up --build（需先完成第 17 步部署配置）
-version: "3.9"
+# AI Career Copilot · Docker Compose（生产部署）
+# 用法：docker compose up --build -d
+# 访问：前端 http://localhost:3000，后端 http://localhost:8000/docs
 
 services:
   db:
-    image: postgres:17
+    image: pgvector/pgvector:pg17
     container_name: ai_career_copilot_db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
@@ -15,38 +15,42 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      # 初始化时自动执行 schema.sql（仅首次启动）
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  redis:
-    image: redis:7-alpine
-    container_name: ai_career_copilot_redis
-    ports:
-      - "6379:6379"
-
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: ai_career_copilot_backend
+    restart: unless-stopped
     env_file:
       - .env
     environment:
+      # 覆盖数据库地址为容器内服务名
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-ai_career_copilot}
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-      redis:
-        condition: service_started
+    volumes:
+      - backend_uploads:/app/backend/uploads
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # 浏览器访问后端的地址（用户机器上的 localhost）
+        NEXT_PUBLIC_API_URL: http://localhost:8000
     container_name: ai_career_copilot_frontend
-    environment:
-      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+    restart: unless-stopped
     ports:
       - "3000:3000"
     depends_on:
@@ -54,3 +58,4 @@ services:
 
 volumes:
   pgdata:
+  backend_uploads:
