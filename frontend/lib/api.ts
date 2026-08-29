@@ -164,3 +164,86 @@ export const ragApi = {
       body: JSON.stringify({ question }),
     }),
 };
+// ---------- 模拟面试 ----------
+export interface InterviewMessage {
+  id: string;
+  role: "assistant" | "user";
+  content: string;
+  created_at: string;
+}
+
+export interface InterviewDetail {
+  id: string;
+  job_id: string | null;
+  score: number | null;
+  feedback: {
+    dimensions: Record<string, number>;
+    per_question: Array<{ question: string; answer: string; score: number; feedback: string }>;
+    suggestions: string[];
+  } | null;
+  started_at: string;
+  finished_at: string | null;
+  messages: InterviewMessage[];
+}
+
+export const interviewApi = {
+  list: () => request<{ interviews: any[] }>("/interviews"),
+  create: (jobId?: string) =>
+    request<InterviewDetail>("/interviews", {
+      method: "POST",
+      body: JSON.stringify({ job_id: jobId || null }),
+    }),
+  get: (id: string) => request<InterviewDetail>(`/interviews/${id}`),
+  answer: (id: string, answer: string) =>
+    request<{ message: InterviewMessage; interview: InterviewDetail }>(
+      `/interviews/${id}/answer`,
+      { method: "POST", body: JSON.stringify({ answer }) }
+    ),
+  end: (id: string) =>
+    request<InterviewDetail>(`/interviews/${id}/end`, { method: "POST" }),
+};
+// ---------- 投递管理 ----------
+export interface Application {
+  id: string;
+  job_id: string;
+  job_title: string | null;
+  job_company: string | null;
+  status: string;
+  status_label: string;
+  note: string | null;
+  applied_at: string;
+}
+
+export interface ApplicationStats {
+  total: number;
+  active: number;
+  offer_rate: number;
+  reject_rate: number;
+  counts: Record<string, number>;
+  funnel: Array<{
+    status: string;
+    label: string;
+    count: number;
+    from_start_pct: number;
+    from_prev_pct: number;
+  }>;
+}
+
+export const applicationApi = {
+  list: (status?: string) =>
+    request<{ applications: Application[] }>(
+      status ? "/applications?status=" + status : "/applications"
+    ),
+  create: (jobId: string, status = "applied", note?: string) =>
+    request<Application>("/applications", {
+      method: "POST",
+      body: JSON.stringify({ job_id: jobId, status, note }),
+    }),
+  update: (id: string, data: { status?: string; note?: string }) =>
+    request<Application>(`/applications/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  remove: (id: string) => request(`/applications/${id}`, { method: "DELETE" }),
+  stats: () => request<ApplicationStats>("/applications/stats"),
+};

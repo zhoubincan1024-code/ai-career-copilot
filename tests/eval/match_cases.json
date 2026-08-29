@@ -1,0 +1,42 @@
+{
+  "description": "匹配引擎评测测试集：简历-JD配对，验证匹配分数合理性与排序",
+  "cases": [
+    {
+      "id": "match_001",
+      "name": "高匹配-测试开发简历vs测试开发JD",
+      "resume_case": "resume_001",
+      "jd_case": "jd_001",
+      "expected_level": "high",
+      "expected_score_min": 70,
+      "expected_gap_themes": ["学历", "经验年限"]
+    },
+    {
+      "id": "match_002",
+      "name": "中匹配-前端简历vs前端JD（经验不足）",
+      "resume_case": "resume_002",
+      "jd_case": "jd_002",
+      "expected_level": "medium",
+      "expected_score_min": 50,
+      "expected_score_max": 80,
+      "expected_gap_themes": ["经验年限"]
+    },
+    {
+      "id": "match_003",
+      "name": "低匹配-数据分析简历vsAI产品经理JD",
+      "resume_case": "resume_003",
+      "jd_case": "jd_003",
+      "expected_level": "low",
+      "expected_score_max": 50,
+      "expected_gap_themes": ["岗位方向", "产品经验"]
+    },
+    {
+      "id": "match_004",
+      "name": "低匹配-测试开发简历vsAI产品经理JD",
+      "resume_case": "resume_001",
+      "jd_case": "jd_003",
+      "expected_level": "low",
+      "expected_score_max": 45,
+      "expected_gap_themes": ["岗位方向", "产品经验"]
+    }
+  ]
+}

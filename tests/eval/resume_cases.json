@@ -1,0 +1,47 @@
+{
+  "description": "简历解析评测测试集：输入简历文本，验证关键字段抽取准确率",
+  "cases": [
+    {
+      "id": "resume_001",
+      "name": "张伟-测试开发工程师",
+      "input_file": "tests/fixtures/sample_resume.txt",
+      "expected": {
+        "name": "张伟",
+        "education_schools": ["天津科技大学"],
+        "education_majors": ["软件工程"],
+        "skills_expected": ["Python", "Pytest", "FastAPI", "PostgreSQL", "Docker", "Git", "Linux"],
+        "skills_optional": ["React", "CI/CD", "JMeter"],
+        "internship_count": 2,
+        "project_count_min": 2
+      }
+    },
+    {
+      "id": "resume_002",
+      "name": "李娜-前端开发工程师",
+      "input_text": "李娜\n手机：138xxxx5678 | 邮箱：lina@email.com\n\n教育背景\n2021.09 - 2025.06  北京邮电大学  计算机科学与技术  本科\nGPA：3.8/4.0，专业排名前10%\n\n专业技能\n- 前端：React、Vue3、TypeScript、Next.js、TailwindCSS\n- 工程化：Webpack、Vite、ESLint、Jest\n- 后端基础：Node.js、Express、MySQL\n- 工具：Git、Figma、Postman\n\n实习经历\n2024.07 - 2024.12  字节跳动  前端开发实习生\n- 参与抖音电商后台管理系统开发，使用 React + TypeScript\n- 优化首屏加载性能，LCP 从 3.2s 降至 1.8s\n- 编写单元测试，覆盖率从 45% 提升至 82%\n\n项目经历\n1. 在线协作文档编辑器（2024.03-2024.06）\n   - 基于 Vue3 + WebSocket 实现实时协同编辑\n   - 使用 CRDT 算法解决冲突，支持 50+ 并发用户\n   - 技术栈：Vue3、TypeScript、Node.js、Redis、Docker\n\n2. 个人博客系统（2023.09-2023.12）\n   - Next.js + MDX 静态生成，支持暗色模式\n   - 集成 Algolia 全文搜索，PV 达 2000+/月",
+      "expected": {
+        "name": "李娜",
+        "education_schools": ["北京邮电大学"],
+        "education_majors": ["计算机科学与技术"],
+        "skills_expected": ["React", "Vue3", "TypeScript", "Next.js", "Node.js", "MySQL", "Git", "Docker"],
+        "skills_optional": ["TailwindCSS", "Webpack", "Vite", "Jest", "Redis", "WebSocket"],
+        "internship_count": 1,
+        "project_count_min": 2
+      }
+    },
+    {
+      "id": "resume_003",
+      "name": "王强-数据分析师",
+      "input_text": "王强\nwangqiang@163.com | 139xxxx1234\n\n教育\n2020-2024  浙江大学  统计学  本科  绩点3.7\n\n技能\nPython（Pandas/Numpy/Scikit-learn）、SQL、Tableau、Excel、A/B测试、统计建模、机器学习基础\n\n实习\n2023.06-2023.12  阿里巴巴  数据分析实习生\n- 负责淘宝用户增长数据分析，搭建日活监控看板\n- 完成3次A/B测试分析，其中一次推动功能全量上线，提升留存5%\n- 使用SQL提取千万级数据，Python进行清洗建模\n\n项目\n用户流失预测模型：基于XGBoost构建用户流失预警模型，AUC达0.85，提前30天识别高风险用户",
+      "expected": {
+        "name": "王强",
+        "education_schools": ["浙江大学"],
+        "education_majors": ["统计学"],
+        "skills_expected": ["Python", "SQL", "Tableau", "Excel", "A/B测试", "机器学习"],
+        "skills_optional": ["Pandas", "Numpy", "Scikit-learn", "XGBoost"],
+        "internship_count": 1,
+        "project_count_min": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "description": "AI模拟面试评测测试集：验证问题相关性、追问质量、评分合理性",
+  "cases": [
+    {
+      "id": "iv_001",
+      "name": "测试开发岗位面试",
+      "jd_case": "jd_001",
+      "resume_case": "resume_001",
+      "expected_question_types": ["技术深度", "项目经验", "问题解决"],
+      "min_questions_before_end": 4,
+      "test_answers": [
+        "我有两年测试开发实习经验，主要做接口自动化测试，用Python+Pytest搭建了自动化框架，覆盖200+用例。",
+        "框架采用分层设计，基础层封装HTTP请求，用例层写测试场景，数据层用YAML管理。遇到的最大挑战是接口依赖，通过fixture解决。",
+        "遇到过偶现bug，高并发下接口500，定位到连接池耗尽，优化连接池配置加重试解决。"
+      ]
+    },
+    {
+      "id": "iv_002",
+      "name": "前端岗位面试",
+      "jd_case": "jd_002",
+      "resume_case": "resume_002",
+      "expected_question_types": ["技术深度", "项目经验", "性能优化"],
+      "min_questions_before_end": 4,
+      "test_answers": [
+        "我精通React和Vue，做过抖音电商后台系统，优化了首屏加载性能，LCP从3.2s降到1.8s。",
+        "性能优化主要做了代码分割、图片懒加载、接口预取，还用Lighthouse持续监控。",
+        "协作文档用了CRDT算法解决冲突，基于WebSocket实现实时同步，支持50+并发。"
+      ]
+    }
+  ]
+}

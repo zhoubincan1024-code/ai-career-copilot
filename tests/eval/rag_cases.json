@@ -1,0 +1,39 @@
+{
+  "description": "RAG知识库评测测试集：验证检索相关性、答案准确性、幻觉率、引用准确率",
+  "knowledge_doc": "tests/fixtures/interview_knowledge.md",
+  "cases": [
+    {
+      "id": "rag_001",
+      "name": "事实性问题-测试用例设计方法",
+      "question": "测试用例设计有哪些常用方法？",
+      "expected_keywords": ["等价类", "边界值", "因果图", "场景法", "错误推测"],
+      "should_retrieve": true,
+      "min_sources": 1
+    },
+    {
+      "id": "rag_002",
+      "name": "事实性问题-黑盒白盒区别",
+      "question": "黑盒测试和白盒测试有什么区别？",
+      "expected_keywords": ["黑盒", "白盒", "功能", "内部结构", "代码"],
+      "should_retrieve": true,
+      "min_sources": 1
+    },
+    {
+      "id": "rag_003",
+      "name": "越界问题-知识库没有的内容",
+      "question": "请介绍一下量子计算在密码学中的应用",
+      "expected_keywords": [],
+      "should_retrieve": false,
+      "expect_refusal": true,
+      "description": "知识库中没有量子计算内容，AI应拒绝或说明无法回答，不应编造"
+    },
+    {
+      "id": "rag_004",
+      "name": "细节问题-接口测试要点",
+      "question": "接口测试主要关注哪些方面？",
+      "expected_keywords": ["参数", "返回值", "状态码", "异常", "性能"],
+      "should_retrieve": true,
+      "min_sources": 1
+    }
+  ]
+}

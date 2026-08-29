@@ -1,0 +1,41 @@
+{
+  "description": "JD解析评测测试集：输入岗位描述，验证技能/要求/学历等字段抽取",
+  "cases": [
+    {
+      "id": "jd_001",
+      "name": "测试开发工程师",
+      "input_file": "tests/fixtures/sample_jd.txt",
+      "expected": {
+        "title_keywords": ["测试", "开发"],
+        "skills_expected": ["Python", "自动化测试", "接口测试", "Pytest", "SQL"],
+        "skills_optional": ["性能测试", "CI/CD", "Docker", "Linux"],
+        "education_min": "本科",
+        "experience_years_min": 1
+      }
+    },
+    {
+      "id": "jd_002",
+      "name": "前端开发工程师",
+      "input_text": "岗位名称：高级前端开发工程师\n公司：某互联网大厂\n薪资：30-50K·15薪\n\n岗位职责：\n1. 负责公司核心产品前端架构设计与开发\n2. 优化前端性能，提升用户体验\n3. 推动前端工程化建设，制定团队代码规范\n4. 与产品、设计、后端团队紧密协作\n\n任职要求：\n1. 本科及以上学历，计算机相关专业，3年以上前端开发经验\n2. 精通 React/Vue 等主流框架，深入理解其原理\n3. 熟练掌握 TypeScript、Webpack/Vite 等工程化工具\n4. 有 Node.js 后端开发经验者优先\n5. 有大型项目性能优化经验者优先\n6. 熟悉小程序开发、Flutter/React Native 者加分\n\n加分项：\n- 有开源项目贡献\n- 熟悉图形渲染、WebGL",
+      "expected": {
+        "title_keywords": ["前端", "开发"],
+        "skills_expected": ["React", "Vue", "TypeScript", "Node.js", "Webpack"],
+        "skills_optional": ["Vite", "小程序", "Flutter", "React Native", "WebGL", "性能优化"],
+        "education_min": "本科",
+        "experience_years_min": 3
+      }
+    },
+    {
+      "id": "jd_003",
+      "name": "AI产品经理",
+      "input_text": "AI产品经理（智能招聘方向）\n\n我们正在寻找一位对AI产品充满热情的产品经理，加入我们的智能招聘团队。\n\n职责：\n- 负责AI驱动的简历解析、岗位匹配、智能面试等产品模块的规划与落地\n- 与算法团队协作，定义模型评估指标，推动模型效果持续优化\n- 进行用户调研，挖掘应届生求职痛点，输出产品需求文档\n- 跟踪行业动态，探索大模型在招聘场景的创新应用\n\n要求：\n- 本科及以上学历，3年以上产品经理经验\n- 有AI产品或招聘行业相关经验优先\n- 理解大语言模型、Prompt工程、RAG等基本概念\n- 具备优秀的数据分析能力，熟练使用SQL\n- 有从0到1产品落地经验者优先",
+      "expected": {
+        "title_keywords": ["AI", "产品经理"],
+        "skills_expected": ["产品经理", "数据分析", "SQL", "大语言模型", "RAG"],
+        "skills_optional": ["Prompt工程", "智能招聘", "简历解析", "岗位匹配"],
+        "education_min": "本科",
+        "experience_years_min": 3
+      }
+    }
+  ]
+}
