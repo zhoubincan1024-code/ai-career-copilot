@@ -17,7 +17,7 @@ export default function Home() {
     },
     {
       title: "AI 模拟面试",
-      desc: "针对目标岗位连续追问，输出结构化评分与复盘（即将上线）",
+      desc: "针对目标岗位连续追问，输出结构化评分与复盘",
     },
   ];
 

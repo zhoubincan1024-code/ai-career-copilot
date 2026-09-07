@@ -21,6 +21,14 @@ interface Source {
   excerpt: string;
 }
 
+interface QARecordItem {
+  id?: string;
+  question: string;
+  answer: string;
+  sources: Source[];
+  created_at?: string | null;
+}
+
 export default function KnowledgePage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -28,8 +36,8 @@ export default function KnowledgePage() {
   const [uploading, setUploading] = useState(false);
   const [question, setQuestion] = useState("");
   const [asking, setAsking] = useState(false);
-  const [answer, setAnswer] = useState("");
-  const [sources, setSources] = useState<Source[]>([]);
+  const [view, setView] = useState<QARecordItem | null>(null);
+  const [records, setRecords] = useState<QARecordItem[]>([]);
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -38,13 +46,25 @@ export default function KnowledgePage() {
       router.push("/login");
       return;
     }
-    if (user) loadDocs();
+    if (user) {
+      loadDocs();
+      loadRecords();
+    }
   }, [loading, user, router]);
 
   const loadDocs = async () => {
     try {
       const res = await documentApi.list();
       setDocs(res.documents || []);
+    } catch (e: any) {
+      setError(e.message);
+    }
+  };
+
+  const loadRecords = async () => {
+    try {
+      const res = await ragApi.records();
+      setRecords(res.records || []);
     } catch (e: any) {
       setError(e.message);
     }
@@ -80,16 +100,33 @@ export default function KnowledgePage() {
     if (!question.trim() || asking) return;
     setAsking(true);
     setError("");
-    setAnswer("");
-    setSources([]);
     try {
-      const res = await ragApi.ask(question.trim());
-      setAnswer(res.answer);
-      setSources(res.sources || []);
+      const q = question.trim();
+      const res = await ragApi.ask(q);
+      const record: QARecordItem = {
+        id: res.record_id,
+        question: q,
+        answer: res.answer,
+        sources: res.sources || [],
+        created_at: res.created_at || null,
+      };
+      setRecords((prev) => [record, ...prev]);
+      setView(record);
+      setQuestion("");
     } catch (e: any) {
       setError(e.message);
     } finally {
       setAsking(false);
+    }
+  };
+
+  const handleDeleteRecord = async (id: string) => {
+    try {
+      await ragApi.removeRecord(id);
+      setRecords((prev) => prev.filter((r) => r.id !== id));
+      if (view?.id === id) setView(null);
+    } catch (e: any) {
+      setError(e.message);
     }
   };
 
@@ -167,7 +204,7 @@ export default function KnowledgePage() {
           )}
         </div>
 
-        {/* 右侧：RAG 问答 */}
+        {/* 右侧：智能问答 + 问答记录 */}
         <div>
           <h2 className="mb-4 font-semibold">智能问答</h2>
           <form onSubmit={handleAsk} className="flex gap-2">
@@ -192,20 +229,22 @@ export default function KnowledgePage() {
             <p className="mt-3 text-xs text-zinc-400">先上传文档后才能提问</p>
           )}
 
-          {answer && (
+          {view && (
             <div className="mt-6 space-y-4">
               <div className="rounded-xl border border-zinc-200 bg-white p-5">
-                <h3 className="mb-2 text-sm font-semibold text-zinc-700">回答</h3>
+                <div className="text-xs text-zinc-400">问题</div>
+                <p className="mt-0.5 text-sm font-medium text-zinc-800">{view.question}</p>
+                <h3 className="mb-2 mt-4 text-sm font-semibold text-zinc-700">回答</h3>
                 <p className="whitespace-pre-line text-sm leading-relaxed text-zinc-800">
-                  {answer}
+                  {view.answer}
                 </p>
               </div>
 
-              {sources.length > 0 && (
+              {view.sources.length > 0 && (
                 <div className="rounded-xl border border-zinc-200 bg-white p-5">
                   <h3 className="mb-3 text-sm font-semibold text-zinc-700">引用来源</h3>
                   <div className="space-y-3">
-                    {sources.map((s, i) => (
+                    {view.sources.map((s, i) => (
                       <div key={i} className="border-l-2 border-zinc-300 pl-3">
                         <div className="text-xs font-medium text-zinc-600">
                           [{i + 1}] {s.title}{" "}
@@ -221,6 +260,53 @@ export default function KnowledgePage() {
               )}
             </div>
           )}
+
+          {/* 问答记录 */}
+          <div className="mt-8">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="font-semibold">问答记录</h3>
+              <span className="text-xs text-zinc-400">{records.length} 条</span>
+            </div>
+            {records.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-zinc-300 p-6 text-center">
+                <p className="text-sm text-zinc-500">还没有问答记录</p>
+                <p className="mt-1 text-xs text-zinc-400">提问后会自动保存，方便随时回看</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {records.map((r) => (
+                  <div
+                    key={r.id}
+                    className="flex items-center justify-between gap-2 rounded-lg border border-zinc-200 bg-white p-3"
+                  >
+                    <button
+                      onClick={() => setView(r)}
+                      className={`min-w-0 flex-1 text-left ${
+                        view?.id === r.id ? "" : "hover:opacity-80"
+                      }`}
+                    >
+                      <div
+                        className={`truncate text-sm font-medium ${
+                          view?.id === r.id ? "text-zinc-900" : "text-zinc-800"
+                        }`}
+                      >
+                        {r.question}
+                      </div>
+                      <div className="mt-0.5 text-xs text-zinc-400">
+                        {r.created_at ? new Date(r.created_at).toLocaleString() : ""}
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => r.id && handleDeleteRecord(r.id)}
+                      className="shrink-0 text-sm text-zinc-400 hover:text-red-600"
+                    >
+                      删除
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

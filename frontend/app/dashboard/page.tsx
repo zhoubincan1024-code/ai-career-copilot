@@ -4,19 +4,20 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { jobApi, matchApi, resumeApi } from "@/lib/api";
+import { interviewApi, jobApi, matchApi, resumeApi } from "@/lib/api";
 import FlowGuide from "@/app/components/FlowGuide";
 
 interface Stats {
   resumes: number;
   jobs: number;
   matches: number;
+  interviews: number;
 }
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [stats, setStats] = useState<Stats>({ resumes: 0, jobs: 0, matches: 0 });
+  const [stats, setStats] = useState<Stats>({ resumes: 0, jobs: 0, matches: 0, interviews: 0 });
   const [recentMatches, setRecentMatches] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
@@ -26,9 +27,15 @@ export default function DashboardPage() {
       return;
     }
     if (!user) return;
-    Promise.all([resumeApi.list(), jobApi.list(), matchApi.list()])
-      .then(([rs, js, ms]) => {
-        setStats({ resumes: rs.length, jobs: js.length, matches: ms.length });
+    Promise.all([resumeApi.list(), jobApi.list(), matchApi.list(), interviewApi.list()])
+      .then(([rs, js, ms, ivs]) => {
+        const ivList = Array.isArray(ivs) ? ivs : ivs?.interviews || [];
+        setStats({
+          resumes: rs.length,
+          jobs: js.length,
+          matches: ms.length,
+          interviews: ivList.filter((i: any) => i.finished).length,
+        });
         setRecentMatches(ms.slice(0, 3));
       })
       .catch((e) => console.error(e))
@@ -72,10 +79,9 @@ export default function DashboardPage() {
     {
       n: 5,
       title: "AI 模拟面试",
-      desc: "针对目标岗位连续追问",
-      done: false,
+      desc: "针对目标岗位连续追问，输出结构化评分与复盘",
+      done: stats.interviews > 0,
       href: "/interview",
-      soon: true,
     },
   ];
 

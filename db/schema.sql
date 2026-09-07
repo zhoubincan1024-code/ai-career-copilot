@@ -173,3 +173,17 @@ CREATE TABLE IF NOT EXISTS evaluations (
 COMMENT ON TABLE evaluations IS 'AI 评测记录';
 CREATE INDEX IF NOT EXISTS idx_evals_task ON evaluations(task_type, model, prompt_version, created_at);
 CREATE INDEX IF NOT EXISTS idx_evals_case ON evaluations(case_id);
+
+-- ============================================================
+-- 11. qa_records 知识库问答记录表
+-- ============================================================
+CREATE TABLE IF NOT EXISTS qa_records (
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    question     TEXT NOT NULL,
+    answer       TEXT NOT NULL,
+    sources_json JSONB,                              -- 引用来源列表 [{title, document_id, similarity, excerpt}]
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+COMMENT ON TABLE qa_records IS '知识库智能问答记录';
+CREATE INDEX IF NOT EXISTS idx_qa_records_user ON qa_records(user_id, created_at);

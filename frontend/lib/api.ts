@@ -160,12 +160,29 @@ export const documentApi = {
 };
 
 // ---------- RAG 问答 ----------
+export interface QARecord {
+  id: string;
+  question: string;
+  answer: string;
+  sources: any[];
+  created_at: string | null;
+}
+
 export const ragApi = {
   ask: (question: string) =>
-    request<{ answer: string; sources: any[]; retrieved: any[] }>("/rag/ask", {
+    request<{
+      answer: string;
+      sources: any[];
+      retrieved: any[];
+      record_id?: string;
+      created_at?: string | null;
+    }>("/rag/ask", {
       method: "POST",
       body: JSON.stringify({ question }),
     }),
+  records: () => request<{ records: QARecord[] }>("/rag/records"),
+  removeRecord: (id: string) =>
+    request<{ ok: boolean }>(`/rag/records/${id}`, { method: "DELETE" }),
 };
 // ---------- 模拟面试 ----------
 export interface InterviewMessage {
